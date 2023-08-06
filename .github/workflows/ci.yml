@@ -35,19 +35,6 @@ jobs:
         with:
           name: clippy-warnings
 
-  rust-tests-clippy-errors:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy
-      - uses: ./
-        with:
-          args: -- -D warnings
-          name: clippy-errors
-        continue-on-error: true
-
   rust-tests-cross:
     runs-on: ubuntu-latest
     steps:

@@ -118,33 +118,7 @@ ${this.stats.help} help`);
     const client = github.getOctokit(options.token, {
       userAgent: USER_AGENT,
     });
-    let checkRunId: number;
-    try {
-      checkRunId = await this.createCheck(client, options);
-    } catch (error) {
-      // `GITHUB_HEAD_REF` is set only for forked repos,
-      // so we could check if it is a fork and not a base repo.
-      if (process.env.GITHUB_HEAD_REF) {
-        core.error(`Unable to create clippy annotations! Reason: ${error}`);
-        core.warning('It seems that this Action is executed from a fork.');
-        core.warning('GitHub Actions are not allowed to create Check annotations, when executed for forks.');
-        core.info('Posting clippy checks here instead.');
-
-        this.dumpToStdout();
-
-        // So, if there were any errors, we are considering this output
-        // as failed, throwing an error will set a non-zero exit code later
-        if (this.getConclusion() == 'failure') {
-          throw new Error('Exiting due to clippy errors');
-        } else {
-          // Otherwise if there were no errors (and we do not care about warnings),
-          // exiting successfully.
-          return;
-        }
-      } else {
-        throw error;
-      }
-    }
+    const checkRunId = await this.createCheck(client, options);
 
     try {
       if (this.isSuccessCheck()) {
@@ -270,12 +244,6 @@ ${this.stats.help} help`);
     await client.rest.checks.update(req);
 
     return;
-  }
-
-  private dumpToStdout() {
-    for (const annotation of this.annotations) {
-      core.info(annotation.message);
-    }
   }
 
   private getBucket(): Array<ChecksCreateParamsOutputAnnotations> {

@@ -19,6 +19,11 @@ on: push
 
 name: Clippy check
 
+# Note: you don't need the following part if you gave Actions write permissions in your repository Settings
+permissions:
+  checks: write
+  contents: read
+
 jobs:
   clippy_check:
     runs-on: ubuntu-latest
@@ -48,15 +53,3 @@ For extra details about the `toolchain`, `args` and `use-cross` inputs,
 see [`rs-cargo` Action](https://github.com/clechasseur/rs-cargo#inputs).
 
 **NOTE**: if your workflow contains multiple instances of the `clippy-check` action you will need to give each invocation a unique name, using the `name` property described above. Check runs must have a unique name; this prevents a later check run overriding a previous one within the same workflow.
-
-## Limitations
-
-***TODO: validate this section***
-
-Due to [token permissions](https://help.github.com/en/articles/virtual-environments-for-github-actions#token-permissions),
-this Action **WILL NOT** be able to post `clippy` annotations for Pull Requests from forked repositories.
-
-This is a pretty big problem, which can be solved only by Github themselves,
-see [#2](https://github.com/actions-rs/clippy-check/issues/2) for details.\
-As a fallback this Action will output all clippy messages into `stdout`
-and fail the result accordingly.
