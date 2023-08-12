@@ -1,3 +1,5 @@
+import path from 'path';
+
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
@@ -52,6 +54,11 @@ export async function run(actionInput: input.Input): Promise<void> {
 
   args = args.concat(actionInput.args);
 
+  const options: exec.ExecOptions = {};
+  if (actionInput.workingDirectory) {
+    options.cwd = path.join(process.cwd(), actionInput.workingDirectory);
+  }
+
   let runner = new CheckRunner();
   let clippyExitCode: number = 0;
   try {
@@ -64,6 +71,7 @@ export async function run(actionInput: input.Input): Promise<void> {
           runner.tryPush(line);
         },
       },
+      ...options,
     });
   } finally {
     core.endGroup();
