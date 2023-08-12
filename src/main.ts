@@ -54,25 +54,24 @@ export async function run(actionInput: input.Input): Promise<void> {
 
   args = args.concat(actionInput.args);
 
-  const options: exec.ExecOptions = {};
+  const runner = new CheckRunner();
+  const options: exec.ExecOptions = {
+    ignoreReturnCode: true,
+    failOnStdErr: false,
+    listeners: {
+      stdline: (line: string) => {
+        runner.tryPush(line);
+      },
+    },
+  };
   if (actionInput.workingDirectory) {
     options.cwd = path.join(process.cwd(), actionInput.workingDirectory);
   }
 
-  let runner = new CheckRunner();
   let clippyExitCode: number = 0;
   try {
     core.startGroup('Executing cargo clippy (JSON output)');
-    clippyExitCode = await program.call(args, {
-      ignoreReturnCode: true,
-      failOnStdErr: false,
-      listeners: {
-        stdline: (line: string) => {
-          runner.tryPush(line);
-        },
-      },
-      ...options,
-    });
+    clippyExitCode = await program.call(args, options);
   } finally {
     core.endGroup();
   }
