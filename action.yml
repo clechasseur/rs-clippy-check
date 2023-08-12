@@ -10,7 +10,7 @@ inputs:
     description: Toolchain to use (without the `+` sign, ex. `nightly`)
     required: false
   args:
-    description: Arguments for the cargo command
+    description: Arguments for the cargo clippy command
     required: false
   use-cross:
     description: Use cross instead of cargo
@@ -18,6 +18,9 @@ inputs:
   name:
     description: Display name of the created GitHub check. Must be unique across several clechasseur/rs-clippy-check invocations.
     default: clippy
+  working-directory:
+    description: Directory where to perform cargo clippy command
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
