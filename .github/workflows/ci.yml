@@ -35,7 +35,6 @@ jobs:
       - uses: ./
         with:
           name: clippy-warnings
-          working-directory: rust_tests/clippy_warnings
 
   rust-tests-cross:
     runs-on: ubuntu-latest
@@ -50,4 +49,3 @@ jobs:
           args: --target aarch64-unknown-linux-gnu
           use-cross: true
           name: clippy-cross
-          working-directory: rust_tests/clippy_warnings
