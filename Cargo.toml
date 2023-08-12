@@ -1,4 +1,0 @@
-[workspace]
-members = [
-    "rust_tests/clippy_warnings"
-]
