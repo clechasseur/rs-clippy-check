@@ -173,12 +173,16 @@ ${this.stats.help} help`);
 
       if (this.annotations.length > 0) {
         // There will be more annotations later
-        core.debug('This is not the last iteration, marking check as "in_progress"');
+        core.debug(
+          'This is not the last iteration, marking check as "in_progress"',
+        );
         req.status = 'in_progress';
       } else {
         // Okay, that was the last bucket
         const conclusion = this.getConclusion();
-        core.debug(`This is the last iteration, marking check as "completed", conclusion: ${conclusion}`);
+        core.debug(
+          `This is the last iteration, marking check as "completed", conclusion: ${conclusion}`,
+        );
         req.status = 'completed';
         req.conclusion = conclusion;
         req.completed_at = new Date().toISOString();
@@ -267,7 +271,9 @@ ${this.stats.help} help`);
     let blocks: string[] = [];
 
     if (this.stats.ice > 0) {
-      blocks.push(`${this.stats.ice} internal compiler error${plural(this.stats.ice)}`);
+      blocks.push(
+        `${this.stats.ice} internal compiler error${plural(this.stats.ice)}`,
+      );
     }
     if (this.stats.error > 0) {
       blocks.push(`${this.stats.error} error${plural(this.stats.error)}`);
