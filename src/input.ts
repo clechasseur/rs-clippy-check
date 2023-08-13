@@ -23,7 +23,7 @@ export function get(): Input {
     toolchain = toolchain.slice(1);
   }
   const useCross = input.getInputBool('use-cross');
-  const workingDirectory = input.getInput("working-directory");
+  const workingDirectory = input.getInput('working-directory');
   const name = input.getInput('name');
 
   return {

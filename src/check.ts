@@ -361,7 +361,10 @@ ${this.stats.help} help`);
 
     // Fix file_name to include workingDirectory
     const fileName = `${this.workingDirectory}${primarySpan.file_name}`;
-    const rendered = contents.message.rendered.replace(primarySpan.file_name, fileName);
+    const rendered = contents.message.rendered.replace(
+      primarySpan.file_name,
+      fileName,
+    );
 
     let annotation: ChecksCreateParamsOutputAnnotations = {
       path: fileName,
