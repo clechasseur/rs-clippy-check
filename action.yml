@@ -2,10 +2,6 @@ name: 'rs-clippy-check'
 description: 'Run clippy and annotate the diff with errors and warnings'
 author: 'clechasseur'
 inputs:
-  token:
-    description: GitHub token
-    required: false
-    default: ${{ github.token }}
   toolchain:
     description: Toolchain to use (without the `+` sign, ex. `nightly`)
     required: false
@@ -15,9 +11,6 @@ inputs:
   use-cross:
     description: Use cross instead of cargo
     default: false
-  name:
-    description: Display name of the created GitHub check. Must be unique across several clechasseur/rs-clippy-check invocations.
-    default: clippy
   working-directory:
     description: Directory where to perform cargo clippy command
     required: false

@@ -2,15 +2,12 @@ import path from 'path';
 
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
-import * as github from '@actions/github';
 
 import { Cargo, Cross } from '@clechasseur/rs-actions-core';
 import * as input from './input';
 import { CheckRunner } from './check';
 
 export async function run(actionInput: input.Input): Promise<void> {
-  const startedAt = new Date().toISOString();
-
   let program;
   if (actionInput.useCross) {
     program = await Cross.getOrInstall();
@@ -76,23 +73,10 @@ export async function run(actionInput: input.Input): Promise<void> {
     core.endGroup();
   }
 
-  let sha = github.context.sha;
-  if (github.context.payload.pull_request?.head?.sha) {
-    sha = github.context.payload.pull_request.head.sha;
-  }
-
-  await runner.executeCheck({
-    token: actionInput.token,
-    name: actionInput.name,
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    head_sha: sha,
-    started_at: startedAt,
-    context: {
-      rustc: rustcVersion,
-      cargo: cargoVersion,
-      clippy: clippyVersion,
-    },
+  await runner.addSummary({
+    rustc: rustcVersion,
+    cargo: cargoVersion,
+    clippy: clippyVersion,
   });
 
   if (clippyExitCode !== 0) {
