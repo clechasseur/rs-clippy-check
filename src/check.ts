@@ -51,10 +51,12 @@ interface Stats {
 }
 
 export class CheckRunner {
+  private workingDirectory: string;
   private annotations: Array<ChecksCreateParamsOutputAnnotations>;
   private stats: Stats;
 
-  constructor() {
+  constructor(workingDirectory?: string) {
+    this.workingDirectory = workingDirectory ? `${workingDirectory}/` : '';
     this.annotations = [];
     this.stats = {
       ice: 0,
@@ -104,7 +106,7 @@ export class CheckRunner {
         break;
     }
 
-    this.annotations.push(CheckRunner.makeAnnotation(contents));
+    this.annotations.push(this.makeAnnotation(contents));
   }
 
   public async executeCheck(options: CheckOptions): Promise<void> {
@@ -331,7 +333,7 @@ ${this.stats.help} help`);
   /// Convert parsed JSON line into the GH annotation object
   ///
   /// https://developer.github.com/v3/checks/runs/#annotations-object
-  static makeAnnotation(
+  private makeAnnotation(
     contents: CargoMessage,
   ): ChecksCreateParamsOutputAnnotations {
     const primarySpan: undefined | DiagnosticSpan = contents.message.spans.find(
@@ -357,13 +359,17 @@ ${this.stats.help} help`);
         break;
     }
 
+    // Fix file_name to include workingDirectory
+    const fileName = `${this.workingDirectory}${primarySpan.file_name}`;
+    const rendered = contents.message.rendered.replace(primarySpan.file_name, fileName);
+
     let annotation: ChecksCreateParamsOutputAnnotations = {
-      path: primarySpan.file_name,
+      path: fileName,
       start_line: primarySpan.line_start,
       end_line: primarySpan.line_end,
       annotation_level: annotation_level,
       title: contents.message.message,
-      message: contents.message.rendered,
+      message: rendered,
     };
 
     // Omit these parameters if `start_line` and `end_line` have different values.

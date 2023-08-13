@@ -54,7 +54,7 @@ export async function run(actionInput: input.Input): Promise<void> {
 
   args = args.concat(actionInput.args);
 
-  const runner = new CheckRunner();
+  const runner = new CheckRunner(actionInput.workingDirectory);
   const options: exec.ExecOptions = {
     ignoreReturnCode: true,
     failOnStdErr: false,
