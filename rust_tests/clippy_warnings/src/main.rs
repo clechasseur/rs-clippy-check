@@ -1,3 +1,5 @@
+mod other;
+
 fn is_odd(a: i64) -> bool {
     if a % 2 == 0 {
         return false;
