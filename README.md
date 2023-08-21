@@ -6,7 +6,7 @@
 > Clippy lints in your Pull Requests
 
 This GitHub Action executes [`clippy`](https://github.com/rust-lang/rust-clippy)
-and posts all lints as annotations for the pushed commit.
+and posts all lints as annotations for the pushed commit [<sup>1</sup>](#note-annotations-limit).
 
 ![Screenshot of a clippy warning displayed in the commit interface of GitHub](./.github/screenshot.png)
 
@@ -46,3 +46,7 @@ All inputs are optional.
 | `working-directory` | Directory where to perform the `cargo clippy` command | string |         |
 
 For extra details about the `toolchain`, `args` and `use-cross` inputs, see [`rs-cargo` Action](https://github.com/clechasseur/rs-cargo#inputs).
+
+## Notes
+
+<a name="note-annotations-limit"><sup>1</sup></a> : Currently, GitHub sets a limit of 10 annotations of each type per run (see [this page](https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28) for more information). So if there are more than 10 such lints of one type reported by `clippy`, only the first 10 will appear as PR annotations. The other lints will still appear in the check run summary (see [this one](https://github.com/clechasseur/rs-clippy-check/actions/runs/5921984365/attempts/1#summary-16055301757) for example).
