@@ -167,7 +167,7 @@ ${this._stats.help} help`);
             annotation.endLine,
           );
 
-          return `${linesMsg}\n\n\`\`\`\n${annotation.title}\n\n${annotation.content}\n\`\`\`\n`;
+          return `${linesMsg}\n\n\`\`\`\n${annotation.content}\n\`\`\`\n`;
         })
         .join('\n');
 
