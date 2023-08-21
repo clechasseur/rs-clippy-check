@@ -161,10 +161,14 @@ ${this._stats.help} help`);
 
     for (const [fileName, annotations] of Object.entries(this._annotations)) {
       const content: string = annotations
-        .map(
-          (annotation) =>
-            `${annotation.title} (line ${annotation.beginLine})\n\n\`\`\`\n${annotation.content}\n\`\`\`\n`,
-        )
+        .map((annotation) => {
+          const linesMsg: string = CheckRunner.linesMsg(
+            annotation.beginLine,
+            annotation.endLine,
+          );
+
+          return `${linesMsg}\n\n\`\`\`\n${annotation.title}\n\n${annotation.content}\n\`\`\`\n`;
+        })
         .join('\n');
 
       core.summary.addDetails(fileName, content);
@@ -227,5 +231,11 @@ ${this._stats.help} help`);
       default:
         return 'error';
     }
+  }
+
+  private static linesMsg(beginLine: number, endLine: number): string {
+    return beginLine == endLine
+      ? `Line ${beginLine}`
+      : `Lines ${beginLine}-${endLine}`;
   }
 }
