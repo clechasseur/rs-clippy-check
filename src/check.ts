@@ -161,6 +161,13 @@ ${this._stats.help} help`);
 
     for (const [fileName, annotations] of Object.entries(this._annotations)) {
       const content: string = annotations
+        .sort((a, b) => {
+          let cmp: number = a.beginLine - b.beginLine;
+          if (cmp === 0) {
+            cmp = a.endLine - b.endLine;
+          }
+          return cmp;
+        })
         .map((annotation) => {
           const linesMsg: string = CheckRunner.linesMsg(
             annotation.beginLine,
