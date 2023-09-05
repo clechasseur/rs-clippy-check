@@ -25,11 +25,11 @@ jobs:
   clippy_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy
-      - uses: clechasseur/rs-clippy-check@v2
+      - uses: clechasseur/rs-clippy-check@v3
         with:
           args: --all-features
 ```
