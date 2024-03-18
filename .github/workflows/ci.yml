@@ -11,7 +11,7 @@ jobs:
         env:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633
       - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
           node-version-file: '.nvmrc'
@@ -23,7 +23,7 @@ jobs:
   rust-tests-clippy-warnings:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633
       - uses: actions-rust-lang/setup-rust-toolchain@b113a30d27a8e59c969077c0a0168cc13dab5ffc
         with:
           components: clippy
@@ -36,7 +36,7 @@ jobs:
   rust-tests-cross:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633
       - uses: actions-rust-lang/setup-rust-toolchain@b113a30d27a8e59c969077c0a0168cc13dab5ffc
         with:
           target: aarch64-unknown-linux-gnu
