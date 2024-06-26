@@ -14,7 +14,7 @@ This GitHub Action has been forked from [actions-rs/clippy-check](https://github
 
 ## Example workflow
 
-Note: this workflow uses [`dtolnay/rust-toolchain`](https://github.com/dtolnay/rust-toolchain) to install the most recent `nightly` clippy.
+Note: this workflow uses [`actions-rust-lang/setup-rust-toolchain`](https://github.com/actions-rust-lang/setup-rust-toolchain) to install the most recent `nightly` clippy.
 
 ```yaml
 name: Clippy check
@@ -26,8 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
+          toolchain: nightly
           components: clippy
       - uses: clechasseur/rs-clippy-check@v3
         with:
