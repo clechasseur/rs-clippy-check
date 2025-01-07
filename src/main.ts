@@ -96,7 +96,7 @@ async function main(): Promise<void> {
 
     await run(actionInput);
   } catch (error) {
-    core.setFailed((<Error>error).message);
+    core.setFailed(<Error>error);
   }
 }
 
