@@ -14,7 +14,7 @@ on:
 
 jobs:
   check-dist:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Create npm configuration
