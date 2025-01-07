@@ -3,4 +3,8 @@ name = "clippy_warnings"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+feature_a = []
+feature_b = []
+
 [dependencies]

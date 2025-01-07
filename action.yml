@@ -8,12 +8,15 @@ inputs:
   args:
     description: Arguments for the cargo clippy command
     required: false
-  use-cross:
-    description: Use cross instead of cargo
-    default: false
   working-directory:
     description: Directory where to perform cargo clippy command
     required: false
+  tool:
+    description: Tool to use instead of cargo ([`cross`, `cargo-hack`])
+    required: false
+  cache-key:
+    description: Cache key used when using a non-cargo tool
+    default: rs-clippy-check
 runs:
   using: 'node20'
   main: 'dist/index.js'

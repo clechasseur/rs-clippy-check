@@ -3,17 +3,23 @@ import path from 'path';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 
-import { Cargo, Cross } from '@clechasseur/rs-actions-core';
+import { Cargo, Cross, CargoHack } from '@clechasseur/rs-actions-core';
 import * as input from './input';
 import { CheckRunner } from './check';
 
-export async function run(actionInput: input.Input): Promise<void> {
-  let program;
-  if (actionInput.useCross) {
-    program = await Cross.getOrInstall();
-  } else {
-    program = await Cargo.get();
+async function getProgram(actionInput: input.Input) {
+  switch (actionInput.tool) {
+    case 'cross':
+      return await Cross.getOrInstall(actionInput.cacheKey);
+    case 'cargo-hack':
+      return await CargoHack.getOrInstall(actionInput.cacheKey);
+    default:
+      return await Cargo.get();
   }
+}
+
+export async function run(actionInput: input.Input): Promise<void> {
+  const program = await getProgram(actionInput);
 
   // TODO: Simplify this block
   let rustcVersion = '';

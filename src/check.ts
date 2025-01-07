@@ -50,9 +50,9 @@ interface Stats {
 }
 
 export class CheckRunner {
-  private _workingDirectory: string;
-  private _annotations: Record<FileName, FileAnnotations>;
-  private _stats: Stats;
+  private readonly _workingDirectory: string;
+  private readonly _annotations: Record<FileName, FileAnnotations>;
+  private readonly _stats: Stats;
 
   constructor(workingDirectory?: string) {
     this._workingDirectory = workingDirectory ? `${workingDirectory}/` : '';
@@ -190,7 +190,7 @@ ${this._stats.help} help`);
 
   private addAnnotation(contents: CargoMessage): void {
     const primarySpan: undefined | DiagnosticSpan = contents.message.spans.find(
-      (span) => span.is_primary == true,
+      (span) => span.is_primary,
     );
     if (!primarySpan) {
       core.debug(
