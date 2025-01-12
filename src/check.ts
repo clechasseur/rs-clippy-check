@@ -38,6 +38,7 @@ type FileAnnotations = Array<FileAnnotation>;
 export interface SummaryContext {
   rustc: string;
   cargo: string;
+  program?: string;
   clippy: string;
 }
 
@@ -147,45 +148,52 @@ ${this._stats.help} help`);
     }
 
     // Now generate the summary with all annotations included.
-    core.summary.addHeading('Results').addTable([
-      [
-        { data: 'Message level', header: true },
-        { data: 'Amount', header: true },
-      ],
-      ['Internal compiler error', `${this._stats.ice}`],
-      ['Error', `${this._stats.error}`],
-      ['Warning', `${this._stats.warning}`],
-      ['Note', `${this._stats.note}`],
-      ['Help', `${this._stats.help}`],
-    ]);
+    if (process.env.GITHUB_STEP_SUMMARY) {
+      core.summary.addHeading('Results').addTable([
+        [
+          { data: 'Message level', header: true },
+          { data: 'Amount', header: true },
+        ],
+        ['Internal compiler error', `${this._stats.ice}`],
+        ['Error', `${this._stats.error}`],
+        ['Warning', `${this._stats.warning}`],
+        ['Note', `${this._stats.note}`],
+        ['Help', `${this._stats.help}`],
+      ]);
 
-    for (const [fileName, annotations] of Object.entries(this._annotations)) {
-      const content: string = annotations
-        .sort((a, b) => {
-          let cmp: number = a.beginLine - b.beginLine;
-          if (cmp === 0) {
-            cmp = a.endLine - b.endLine;
-          }
-          return cmp;
-        })
-        .map((annotation) => {
-          const linesMsg: string = CheckRunner.linesMsg(
-            annotation.beginLine,
-            annotation.endLine,
-          );
+      for (const [fileName, annotations] of Object.entries(this._annotations)) {
+        const content: string = annotations
+          .sort((a, b) => {
+            let cmp: number = a.beginLine - b.beginLine;
+            if (cmp === 0) {
+              cmp = a.endLine - b.endLine;
+            }
+            return cmp;
+          })
+          .map((annotation) => {
+            const linesMsg: string = CheckRunner.linesMsg(
+              annotation.beginLine,
+              annotation.endLine,
+            );
 
-          return `${linesMsg}\n\n\`\`\`\n${annotation.content}\n\`\`\`\n`;
-        })
-        .join('\n');
+            return `${linesMsg}\n\n\`\`\`\n${annotation.content}\n\`\`\`\n`;
+          })
+          .join('\n');
 
-      core.summary.addDetails(fileName, content);
+        core.summary.addDetails(fileName, content);
+      }
+
+      return core.summary
+        .addHeading('Versions')
+        .addList([
+          context.rustc,
+          context.cargo,
+          ...(context.program ? [context.program] : []),
+          context.clippy,
+        ])
+        .write()
+        .then((_summary) => {});
     }
-
-    return core.summary
-      .addHeading('Versions')
-      .addList([context.rustc, context.cargo, context.clippy])
-      .write()
-      .then((_summary) => {});
   }
 
   private addAnnotation(contents: CargoMessage): void {
