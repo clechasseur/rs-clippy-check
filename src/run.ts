@@ -57,14 +57,12 @@ export async function run(actionInput: input.Input): Promise<void> {
       stdout: (buffer: Buffer) => (cargoVersion = buffer.toString().trim()),
     },
   });
-  if (actionInput.tool) {
-    await program.call(['-V'], {
-      silent: true,
-      listeners: {
-        stdout: (buffer: Buffer) => (programVersion = buffer.toString().trim()),
-      },
-    });
-  }
+  await program.call(['-V'], {
+    silent: true,
+    listeners: {
+      stdout: (buffer: Buffer) => (programVersion = buffer.toString().trim()),
+    },
+  });
   await cargo.call(['clippy', '-V'], {
     silent: true,
     listeners: {
@@ -106,7 +104,7 @@ export async function run(actionInput: input.Input): Promise<void> {
   await runner.addSummary({
     rustc: rustcVersion,
     cargo: cargoVersion,
-    ...(programVersion && { program: programVersion }),
+    ...(programVersion !== cargoVersion && { program: programVersion }),
     clippy: clippyVersion,
   });
 
