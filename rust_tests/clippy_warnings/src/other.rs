@@ -69,3 +69,12 @@ fn is_odd9(a: i64) -> bool {
         return true;
     }
 }
+
+fn is_oddA(a: i64) -> bool {
+    if a % 2 == 0 {
+        return false;
+    } else {
+        return true;
+    }
+}
+
