@@ -1,6 +1,6 @@
 {
   "name": "rs-clippy-check",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "private": false,
   "description": "Run clippy and annotate the diff with errors and warnings",
   "main": "dist/index.js",
