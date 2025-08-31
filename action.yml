@@ -18,7 +18,7 @@ inputs:
     description: Cache key used when using a non-cargo tool
     default: rs-clippy-check
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'
 branding:
   icon: paperclip

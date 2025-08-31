@@ -1,6 +1,6 @@
 {
   "name": "rs-clippy-check",
-  "version": "4.0.5",
+  "version": "5.0.0",
   "private": false,
   "description": "Run clippy and annotate the diff with errors and warnings",
   "main": "dist/index.js",
@@ -26,7 +26,7 @@
     "url": "https://github.com/clechasseur/rs-clippy-check/issues"
   },
   "dependencies": {
-    "@clechasseur/rs-actions-core": "^5.0.5",
+    "@clechasseur/rs-actions-core": "^6.0.0",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
