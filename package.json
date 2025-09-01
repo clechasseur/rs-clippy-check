@@ -1,6 +1,6 @@
 {
   "name": "rs-clippy-check",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "private": false,
   "description": "Run clippy and annotate the diff with errors and warnings",
   "main": "dist/index.js",
@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "@types/node": "^20.19.9",
+    "@types/node": "^24.3.0",
     "@vercel/ncc": "^0.38.3",
     "jest": "^30.1.1",
     "prettier": "^3.6.2",
