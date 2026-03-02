@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 
-import * as input from './input';
-import { run } from './run';
+import * as input from './input.js';
+import { run } from './run.js';
 
 async function main(): Promise<void> {
   try {

@@ -10,8 +10,8 @@ import {
   CrossOptions,
 } from '@clechasseur/rs-actions-core';
 
-import * as input from './input';
-import { CheckRunner } from './check';
+import * as input from './input.js';
+import { CheckRunner } from './check.js';
 
 async function getProgram(actionInput: input.Input) {
   switch (actionInput.tool) {
