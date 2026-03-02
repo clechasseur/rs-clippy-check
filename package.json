@@ -1,6 +1,6 @@
 {
   "name": "rs-clippy-check",
-  "version": "5.0.2",
+  "version": "6.0.0",
   "type": "module",
   "private": true,
   "description": "Run clippy and annotate the diff with errors and warnings",
