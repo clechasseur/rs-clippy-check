@@ -1,15 +1,16 @@
 {
   "name": "rs-clippy-check",
   "version": "5.0.2",
-  "private": false,
+  "type": "module",
+  "private": true,
   "description": "Run clippy and annotate the diff with errors and warnings",
   "main": "dist/index.js",
   "scripts": {
-    "all": "npm run build && npm run test",
-    "build": "ncc build src/main.ts --minify",
+    "all": "npm run package && npm run test",
+    "build": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "format": "prettier --write 'src/**/*.ts' '__tests__/**/*.ts'",
-    "watch": "ncc build src/main.ts --watch --minify",
-    "test": "jest -c jest.config.json"
+    "package": "rm -rf ./dist/* && npm run build",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand"
   },
   "repository": {
     "type": "git",
@@ -26,15 +27,22 @@
     "url": "https://github.com/clechasseur/rs-clippy-check/issues"
   },
   "dependencies": {
+    "@actions/core": "^3.0.0",
+    "@actions/exec": "^3.0.0",
     "@clechasseur/rs-actions-core": "^7.0.3",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@tsconfig/node-lts": "^24.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.13",
-    "@vercel/ncc": "^0.38.4",
     "jest": "^30.2.0",
     "prettier": "^3.8.1",
+    "rollup": "^4.59.0",
     "ts-jest": "^29.4.6",
     "typescript": "^5.9.3"
   }

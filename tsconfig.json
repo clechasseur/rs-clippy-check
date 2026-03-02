@@ -1,31 +1,11 @@
 {
-    "compilerOptions": {
-      "allowJs": false,
-      "checkJs": false,
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "newLine": "LF",
-      "noEmitOnError": true,
-      "noErrorTruncation": true,
-      "noFallthroughCasesInSwitch": true,
-      "noImplicitAny": true,
-      "noImplicitReturns": true,
-      "noImplicitThis": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "outDir": "dist",
-      "pretty": true,
-      "removeComments": true,
-      "resolveJsonModule": true,
-      "strict": true,
-      "suppressImplicitAnyIndexErrors": false,
-      "target": "es2023",
-      "declaration": false,
-      "sourceMap": false
-    },
-    "include": [
-      "src/**/*.ts"
-    ]
-  }
+  "extends": "@tsconfig/node-lts/tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": false,
+    "outDir": "./dist",
+    "sourceMap": false
+  },
+  "exclude": ["__tests__", "dist", "node_modules", "rust_tests"],
+  "include": ["src"]
+}

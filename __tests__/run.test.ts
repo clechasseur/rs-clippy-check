@@ -1,5 +1,5 @@
-import { Input } from '../src/input';
-import { run } from '../src/run';
+import { Input } from '../src/input.js';
+import { run } from '../src/run.js';
 
 const SECONDS = 1000;
 
