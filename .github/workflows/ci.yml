@@ -42,16 +42,16 @@ jobs:
           args: --all-features
           working-directory: rust_tests/clippy_warnings
       - run: |
-          echo 'rustc version: ${CI_RUSTC_VERSION}'
-          echo 'cargo version: ${CI_CARGO_VERSION}'
-          echo 'tool version: ${CI_TOOL_VERSION}'
-          echo 'clippy version: ${CI_CLIPPY_VERSION}'
+          echo "rustc version: $CI_RUSTC_VERSION"
+          echo "cargo version: $CI_CARGO_VERSION"
+          echo "tool version: $CI_TOOL_VERSION"
+          echo "clippy version: $CI_CLIPPY_VERSION"
           
-          echo 'Internal Compiler Errors: ${CI_INTERNAL_COMPILER_ERRORS}'
-          echo 'Errors: ${CI_ERRORS}'
-          echo 'Warnings: ${CI_WARNINGS}'
-          echo 'Notes: ${CI_NOTES}'
-          echo 'Help: ${CI_HELP}'
+          echo "Internal Compiler Errors: $CI_INTERNAL_COMPILER_ERRORS"
+          echo "Errors: $CI_ERRORS"
+          echo "Warnings: $CI_WARNINGS"
+          echo "Notes: $CI_NOTES"
+          echo "Help: $CI_HELP"
         env:
           CI_RUSTC_VERSION: ${{ steps.clippy-check.outputs.rustc-version }}
           CI_CARGO_VERSION: ${{ steps.clippy-check.outputs.cargo-version }}
@@ -82,16 +82,16 @@ jobs:
           tool: cross
           cache-key: 'rs-clippy-check-tests'
       - run: |
-          echo 'rustc version: ${CI_RUSTC_VERSION}'
-          echo 'cargo version: ${CI_CARGO_VERSION}'
-          echo 'tool version: ${CI_TOOL_VERSION}'
-          echo 'clippy version: ${CI_CLIPPY_VERSION}'
+          echo "rustc version: $CI_RUSTC_VERSION"
+          echo "cargo version: $CI_CARGO_VERSION"
+          echo "tool version: $CI_TOOL_VERSION"
+          echo "clippy version: $CI_CLIPPY_VERSION"
 
-          echo 'Internal Compiler Errors: ${CI_INTERNAL_COMPILER_ERRORS}'
-          echo 'Errors: ${CI_ERRORS}'
-          echo 'Warnings: ${CI_WARNINGS}'
-          echo 'Notes: ${CI_NOTES}'
-          echo 'Help: ${CI_HELP}'
+          echo "Internal Compiler Errors: $CI_INTERNAL_COMPILER_ERRORS"
+          echo "Errors: $CI_ERRORS"
+          echo "Warnings: $CI_WARNINGS"
+          echo "Notes: $CI_NOTES"
+          echo "Help: $CI_HELP"
         env:
           CI_RUSTC_VERSION: ${{ steps.clippy-check.outputs.rustc-version }}
           CI_CARGO_VERSION: ${{ steps.clippy-check.outputs.cargo-version }}
@@ -121,16 +121,16 @@ jobs:
           tool: cargo-hack
           cache-key: 'rs-clippy-check-tests'
       - run: |
-          echo 'rustc version: ${CI_RUSTC_VERSION}'
-          echo 'cargo version: ${CI_CARGO_VERSION}'
-          echo 'tool version: ${CI_TOOL_VERSION}'
-          echo 'clippy version: ${CI_CLIPPY_VERSION}'
+          echo "rustc version: $CI_RUSTC_VERSION"
+          echo "cargo version: $CI_CARGO_VERSION"
+          echo "tool version: $CI_TOOL_VERSION"
+          echo "clippy version: $CI_CLIPPY_VERSION"
 
-          echo 'Internal Compiler Errors: ${CI_INTERNAL_COMPILER_ERRORS}'
-          echo 'Errors: ${CI_ERRORS}'
-          echo 'Warnings: ${CI_WARNINGS}'
-          echo 'Notes: ${CI_NOTES}'
-          echo 'Help: ${CI_HELP}'
+          echo "Internal Compiler Errors: $CI_INTERNAL_COMPILER_ERRORS"
+          echo "Errors: $CI_ERRORS"
+          echo "Warnings: $CI_WARNINGS"
+          echo "Notes: $CI_NOTES"
+          echo "Help: $CI_HELP"
         env:
           CI_RUSTC_VERSION: ${{ steps.clippy-check.outputs.rustc-version }}
           CI_CARGO_VERSION: ${{ steps.clippy-check.outputs.cargo-version }}
