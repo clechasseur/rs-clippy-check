@@ -5,8 +5,7 @@
 
 > Clippy lints in your Pull Requests
 
-This GitHub Action executes [`clippy`](https://github.com/rust-lang/rust-clippy)
-and posts all lints as annotations for the pushed commit [<sup>1</sup>](#note-annotations-limit).
+This GitHub Action executes [`clippy`](https://github.com/rust-lang/rust-clippy) and posts all lints as annotations for the pushed commit [<sup>1</sup>](#note-annotations-limit).
 
 ![Screenshot of a clippy warning displayed in the commit interface of GitHub](./.github/screenshot.png)
 
@@ -25,12 +24,12 @@ jobs:
   clippy_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: actions-rust-lang/setup-rust-toolchain@9399c7bb15d4c7d47b27263d024f0a4978346ba4 # v1.11.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions-rust-lang/setup-rust-toolchain@a0b538fa0b742a6aa35d6e2c169b4bd06d225a98 # v1.15.3
         with:
           toolchain: nightly
           components: clippy
-      - uses: clechasseur/rs-clippy-check@23f6dcf86d7e4e0d98b000bba0bb81ac587c44aa # v4.0.2
+      - uses: clechasseur/rs-clippy-check@v6.0.0
         with:
           args: --all-features
 ```
@@ -48,6 +47,12 @@ All inputs are optional.
 | `cache-key`         |          | Cache key when using a non-`cargo` `tool`                                                                                              | string | rs-clippy-check |
 
 For extra details about the `toolchain`, `args`, `tool` and `cache-key` inputs, see [`rs-cargo` Action](https://github.com/clechasseur/rs-cargo#inputs).
+
+## Release immutability
+
+Starting with release 6.0.0, this GitHub action's releases will be marked as [immutable](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases). This means that once a release is created, its tag cannot be modified in any way.
+
+Previously, best practices for using GitHub actions in workflows were to pin the actions to a specific Git commit hash. With immutable releases, this is no longer necessary and the actual Git tag is safe to use. Because of this, starting with release 6.0.0, this GitHub action will **no longer provide a floating major version tag** (like `v6`, for example). To use a specific version of this action, pin it to the release tag (like `v6.0.0`).
 
 ## Notes
 
