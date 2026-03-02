@@ -115,6 +115,17 @@ ${this._stats.ice} ICE, ${this._stats.error} errors, \
 ${this._stats.warning} warnings, ${this._stats.note} notes, \
 ${this._stats.help} help`);
 
+    core.setOutput('rustc-version', context.rustc);
+    core.setOutput('cargo-version', context.cargo);
+    core.setOutput('tool-version', context.program ?? context.cargo);
+    core.setOutput('clippy-version', context.clippy);
+
+    core.setOutput('internal-compiler-errors', this._stats.ice);
+    core.setOutput('errors', this._stats.error);
+    core.setOutput('warnings', this._stats.warning);
+    core.setOutput('notes', this._stats.note);
+    core.setOutput('help', this._stats.help);
+
     // Add all the annotations now. It is limited to 10, but it's better than nothing.
     // All annotations will also be included in the summary, below.
     // For more information, see https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28

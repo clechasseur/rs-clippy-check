@@ -17,6 +17,25 @@ inputs:
   cache-key:
     description: Cache key used when using a non-cargo tool
     default: rs-clippy-check
+outputs:
+  rustc-version:
+    description: Version of `rustc` detected
+  cargo-version:
+    description: Version of `cargo` detected
+  tool-version:
+    description: Version of custom tool detected (as specified in `tool` input)
+  clippy-version:
+    description: Version of `clippy` detected
+  internal-compiler-errors:
+    description: Number of ICE (Internal Compiler Errors) reported
+  errors:
+    description: Number of errors reported
+  warnings:
+    description: Number of warnings reported
+  notes:
+    description: Number of notes reported
+  help:
+    description: Number of help messages reported
 runs:
   using: 'node24'
   main: 'dist/index.js'
