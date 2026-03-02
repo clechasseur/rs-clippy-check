@@ -23,7 +23,8 @@ jobs:
           rustflags: ""
           target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu
       - run: npm ci
-      - run: npm run build
+      - run: npm run lint
+      - run: npm run package
       - run: npm run test
 
   rust-tests-clippy-warnings:
