@@ -174,6 +174,36 @@ function escapeProperty(s) {
         .replace(/,/g, '%2C');
 }
 
+// For internal use, subject to change.
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function issueFileCommand(command, message) {
+    const filePath = process.env[`GITHUB_${command}`];
+    if (!filePath) {
+        throw new Error(`Unable to find environment variable for file command ${command}`);
+    }
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Missing file at path: ${filePath}`);
+    }
+    fs.appendFileSync(filePath, `${toCommandValue(message)}${os.EOL}`, {
+        encoding: 'utf8'
+    });
+}
+function prepareKeyValueMessage(key, value) {
+    const delimiter = `ghadelimiter_${crypto$1.randomUUID()}`;
+    const convertedValue = toCommandValue(value);
+    // These should realistically never happen, but just in case someone finds a
+    // way to exploit uuid generation let's not allow keys or values that contain
+    // the delimiter.
+    if (key.includes(delimiter)) {
+        throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+    }
+    if (convertedValue.includes(delimiter)) {
+        throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+    }
+    return `${key}<<${delimiter}${os.EOL}${convertedValue}${os.EOL}${delimiter}`;
+}
+
 function getProxyUrl(reqUrl) {
     const usingSsl = reqUrl.protocol === 'https:';
     if (checkBypass(reqUrl)) {
@@ -29801,6 +29831,21 @@ function setSecret(secret) {
 function getInput$1(name, options) {
     const val = process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] || '';
     return val.trim();
+}
+/**
+ * Sets the value of an output.
+ *
+ * @param     name     name of the output to set
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function setOutput(name, value) {
+    const filePath = process.env['GITHUB_OUTPUT'] || '';
+    if (filePath) {
+        return issueFileCommand('OUTPUT', prepareKeyValueMessage(name, value));
+    }
+    process.stdout.write(os.EOL);
+    issueCommand('set-output', { name }, toCommandValue(value));
 }
 //-----------------------------------------------------------------------
 // Results
@@ -79906,6 +79951,15 @@ class CheckRunner {
 ${this._stats.ice} ICE, ${this._stats.error} errors, \
 ${this._stats.warning} warnings, ${this._stats.note} notes, \
 ${this._stats.help} help`);
+        setOutput('rustc-version', context.rustc);
+        setOutput('cargo-version', context.cargo);
+        setOutput('tool-version', context.program ?? context.cargo);
+        setOutput('clippy-version', context.clippy);
+        setOutput('internal-compiler-errors', this._stats.ice);
+        setOutput('errors', this._stats.error);
+        setOutput('warnings', this._stats.warning);
+        setOutput('notes', this._stats.note);
+        setOutput('help', this._stats.help);
         // Add all the annotations now. It is limited to 10, but it's better than nothing.
         // All annotations will also be included in the summary, below.
         // For more information, see https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28
@@ -80103,7 +80157,7 @@ async function run(actionInput) {
     await runner.addSummary({
         rustc: rustcVersion,
         cargo: cargoVersion,
-        ...(programVersion !== cargoVersion && { program: programVersion }),
+        ...(actionInput.tool && { program: programVersion }),
         clippy: clippyVersion,
     });
     if (clippyExitCode !== 0) {

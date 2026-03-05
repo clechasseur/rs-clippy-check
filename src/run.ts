@@ -104,7 +104,7 @@ export async function run(actionInput: input.Input): Promise<void> {
   await runner.addSummary({
     rustc: rustcVersion,
     cargo: cargoVersion,
-    ...(programVersion !== cargoVersion && { program: programVersion }),
+    ...(actionInput.tool && { program: programVersion }),
     clippy: clippyVersion,
   });
 

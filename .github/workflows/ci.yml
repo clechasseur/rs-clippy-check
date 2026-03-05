@@ -37,9 +37,22 @@ jobs:
           matcher: false
           rustflags: ""
       - uses: ./
+        id: clippy-check
         with:
           args: --all-features
           working-directory: rust_tests/clippy_warnings
+      - name: Check action outputs
+        run: |
+          echo "rustc version: ${{ steps.clippy-check.outputs.rustc-version }}"
+          echo "cargo version: ${{ steps.clippy-check.outputs.cargo-version }}"
+          echo "tool version: ${{ steps.clippy-check.outputs.tool-version }}"
+          echo "clippy version: ${{ steps.clippy-check.outputs.clippy-version }}"
+
+          echo "Internal Compiler Errors: ${{ steps.clippy-check.outputs.internal-compiler-errors }}"
+          echo "Errors: ${{ steps.clippy-check.outputs.errors }}"
+          echo "Warnings: ${{ steps.clippy-check.outputs.warnings }}"
+          echo "Notes: ${{ steps.clippy-check.outputs.notes }}"
+          echo "Help: ${{ steps.clippy-check.outputs.help }}"
 
   rust-tests-cross:
     runs-on: ubuntu-24.04
@@ -52,11 +65,24 @@ jobs:
           matcher: false
           rustflags: ""
       - uses: ./
+        id: clippy-check
         with:
           args: --target aarch64-unknown-linux-gnu --all-features
           working-directory: rust_tests/clippy_warnings
           tool: cross
           cache-key: 'rs-clippy-check-tests'
+      - name: Check action outputs
+        run: |
+          echo "rustc version: ${{ steps.clippy-check.outputs.rustc-version }}"
+          echo "cargo version: ${{ steps.clippy-check.outputs.cargo-version }}"
+          echo "tool version: ${{ steps.clippy-check.outputs.tool-version }}"
+          echo "clippy version: ${{ steps.clippy-check.outputs.clippy-version }}"
+
+          echo "Internal Compiler Errors: ${{ steps.clippy-check.outputs.internal-compiler-errors }}"
+          echo "Errors: ${{ steps.clippy-check.outputs.errors }}"
+          echo "Warnings: ${{ steps.clippy-check.outputs.warnings }}"
+          echo "Notes: ${{ steps.clippy-check.outputs.notes }}"
+          echo "Help: ${{ steps.clippy-check.outputs.help }}"
 
   rust-tests-cargo-hack:
     runs-on: ubuntu-24.04
@@ -68,8 +94,21 @@ jobs:
           matcher: false
           rustflags: ""
       - uses: ./
+        id: clippy-check
         with:
           args: --feature-powerset
           working-directory: rust_tests/clippy_warnings
           tool: cargo-hack
           cache-key: 'rs-clippy-check-tests'
+      - name: Check action outputs
+        run: |
+          echo "rustc version: ${{ steps.clippy-check.outputs.rustc-version }}"
+          echo "cargo version: ${{ steps.clippy-check.outputs.cargo-version }}"
+          echo "tool version: ${{ steps.clippy-check.outputs.tool-version }}"
+          echo "clippy version: ${{ steps.clippy-check.outputs.clippy-version }}"
+
+          echo "Internal Compiler Errors: ${{ steps.clippy-check.outputs.internal-compiler-errors }}"
+          echo "Errors: ${{ steps.clippy-check.outputs.errors }}"
+          echo "Warnings: ${{ steps.clippy-check.outputs.warnings }}"
+          echo "Notes: ${{ steps.clippy-check.outputs.notes }}"
+          echo "Help: ${{ steps.clippy-check.outputs.help }}"
