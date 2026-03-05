@@ -115,16 +115,16 @@ ${this._stats.ice} ICE, ${this._stats.error} errors, \
 ${this._stats.warning} warnings, ${this._stats.note} notes, \
 ${this._stats.help} help`);
 
-    core.setOutput('rustc-version', context.rustc);
-    core.setOutput('cargo-version', context.cargo);
-    core.setOutput('tool-version', context.program ?? context.cargo);
-    core.setOutput('clippy-version', context.clippy);
+    core.setOutput('rustc_version', context.rustc);
+    core.setOutput('cargo_version', context.cargo);
+    core.setOutput('tool_version', context.program ?? context.cargo);
+    core.setOutput('clippy_version', context.clippy);
 
-    core.setOutput('internal-compiler-errors', this._stats.ice);
-    core.setOutput('errors', this._stats.error);
-    core.setOutput('warnings', this._stats.warning);
-    core.setOutput('notes', this._stats.note);
-    core.setOutput('help', this._stats.help);
+    core.setOutput('internal_compiler_errors', this._stats.ice.toString());
+    core.setOutput('errors', this._stats.error.toString());
+    core.setOutput('warnings', this._stats.warning.toString());
+    core.setOutput('notes', this._stats.note.toString());
+    core.setOutput('help', this._stats.help.toString());
 
     // Add all the annotations now. It is limited to 10, but it's better than nothing.
     // All annotations will also be included in the summary, below.
