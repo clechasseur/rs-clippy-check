@@ -78,12 +78,12 @@ jobs:
           cache-key: 'rs-clippy-check-tests'
       - name: Check action outputs
         run: |
-          echo "rustc version: ${{ steps.clippy-check.outputs.rustc_version }}"
-          echo "cargo version: ${{ steps.clippy-check.outputs.cargo_version }}"
-          echo "tool version: ${{ steps.clippy-check.outputs.tool_version }}"
-          echo "clippy version: ${{ steps.clippy-check.outputs.clippy_version }}"
+          echo "rustc version: ${{ steps.clippy-check.outputs.rustc-version }}"
+          echo "cargo version: ${{ steps.clippy-check.outputs.cargo-version }}"
+          echo "tool version: ${{ steps.clippy-check.outputs.tool-version }}"
+          echo "clippy version: ${{ steps.clippy-check.outputs.clippy-version }}"
 
-          echo "Internal Compiler Errors: ${{ steps.clippy-check.outputs.internal_compiler_errors }}"
+          echo "Internal Compiler Errors: ${{ steps.clippy-check.outputs.internal-compiler-errors }}"
           echo "Errors: ${{ steps.clippy-check.outputs.errors }}"
           echo "Warnings: ${{ steps.clippy-check.outputs.warnings }}"
           echo "Notes: ${{ steps.clippy-check.outputs.notes }}"
