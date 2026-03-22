@@ -1,6 +1,6 @@
 {
   "name": "rs-clippy-check",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "type": "module",
   "private": true,
   "description": "Run clippy and annotate the diff with errors and warnings",
@@ -30,7 +30,7 @@
   "dependencies": {
     "@actions/core": "^3.0.0",
     "@actions/exec": "^3.0.0",
-    "@clechasseur/rs-actions-core": "^7.0.3",
+    "@clechasseur/rs-actions-core": "^7.0.4",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
