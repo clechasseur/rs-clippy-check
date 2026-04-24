@@ -4,7 +4,9 @@
     "declaration": true,
     "declarationMap": false,
     "outDir": "./dist",
-    "sourceMap": false
+    "rootDir": "src",
+    "sourceMap": false,
+    "types": ["jest", "node"]
   },
   "exclude": ["__tests__", "dist", "node_modules", "rust_tests"],
   "include": ["src"]
