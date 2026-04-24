@@ -31,7 +31,7 @@ jobs:
         with:
           toolchain: nightly
           components: clippy
-      - uses: clechasseur/rs-clippy-check@v6.0.2
+      - uses: clechasseur/rs-clippy-check@v6.0.3
         with:
           args: --all-features
 ```
