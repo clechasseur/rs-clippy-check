@@ -32439,7 +32439,7 @@ function requireRe () {
 		createToken('GTLT', '((?:<|>)?=?)');
 
 		// Something like "2.*" or "1.2.x".
-		// Note that "x.x" is a valid xRange identifer, meaning "any version"
+		// Note that "x.x" is a valid xRange identifier, meaning "any version"
 		// Only the first item is strictly required.
 		createToken('XRANGEIDENTIFIERLOOSE', `${src[t.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`);
 		createToken('XRANGEIDENTIFIER', `${src[t.NUMERICIDENTIFIER]}|x|X|\\*`);
@@ -33433,6 +33433,62 @@ function requireCoerce () {
 	};
 	coerce_1 = coerce;
 	return coerce_1;
+}
+
+var truncate_1;
+var hasRequiredTruncate;
+
+function requireTruncate () {
+	if (hasRequiredTruncate) return truncate_1;
+	hasRequiredTruncate = 1;
+
+	const parse = requireParse();
+	const constants = requireConstants();
+	const SemVer = requireSemver$1();
+
+	const truncate = (version, truncation, options) => {
+	  if (!constants.RELEASE_TYPES.includes(truncation)) {
+	    return null
+	  }
+
+	  const clonedVersion = cloneInputVersion(version, options);
+	  return clonedVersion && doTruncation(clonedVersion, truncation)
+	};
+
+	const cloneInputVersion = (version, options) => {
+	  const versionStringToParse = (
+	    version instanceof SemVer ? version.version : version
+	  );
+
+	  return parse(versionStringToParse, options)
+	};
+
+	const doTruncation = (version, truncation) => {
+	  if (isPrerelease(truncation)) {
+	    return version.version
+	  }
+
+	  version.prerelease = [];
+
+	  switch (truncation) {
+	    case 'major':
+	      version.minor = 0;
+	      version.patch = 0;
+	      break
+	    case 'minor':
+	      version.patch = 0;
+	      break
+	  }
+
+	  return version.format()
+	};
+
+	const isPrerelease = (type) => {
+	  return type.startsWith('pre')
+	};
+
+	truncate_1 = truncate;
+	return truncate_1;
 }
 
 var lrucache;
@@ -34884,6 +34940,7 @@ function requireSemver () {
 	const lte = requireLte();
 	const cmp = requireCmp();
 	const coerce = requireCoerce();
+	const truncate = requireTruncate();
 	const Comparator = requireComparator();
 	const Range = requireRange();
 	const satisfies = requireSatisfies();
@@ -34922,6 +34979,7 @@ function requireSemver () {
 	  lte,
 	  cmp,
 	  coerce,
+	  truncate,
 	  Comparator,
 	  Range,
 	  satisfies,
@@ -45132,14 +45190,14 @@ function validateEntityName(name) {
 }
 
 const hexRegex = /^[-+]?0x[a-fA-F0-9]+$/;
+const binRegex = /^0b[01]+$/;
+const octRegex = /^0o[0-7]+$/;
 const numRegex = /^([\-\+])?(0*)([0-9]*(\.[0-9]*)?)$/;
-// const octRegex = /^0x[a-z0-9]+/;
-// const binRegex = /0x[a-z0-9]+/;
-
 
 const consider = {
     hex: true,
-    // oct: false,
+    binary: false,
+    octal: false,
     leadingZeros: true,
     decimalPoint: "\.",
     eNotation: true,
@@ -45158,14 +45216,14 @@ function toNumber(str, options = {}) {
     else if (trimmedStr === "0") return 0;
     else if (options.hex && hexRegex.test(trimmedStr)) {
         return parse_int(trimmedStr, 16);
-        // }else if (options.oct && octRegex.test(str)) {
-        //     return Number.parseInt(val, 8);
+    } else if (options.binary && binRegex.test(trimmedStr)) {
+        return parse_int(trimmedStr, 2);
+    } else if (options.octal && octRegex.test(trimmedStr)) {
+        return parse_int(trimmedStr, 8);
     } else if (!isFinite(trimmedStr)) { //Infinity
         return handleInfinity(str, Number(trimmedStr), options);
     } else if (trimmedStr.includes('e') || trimmedStr.includes('E')) { //eNotation
         return resolveEnotation(str, trimmedStr, options);
-        // }else if (options.parseBin && binRegex.test(str)) {
-        //     return Number.parseInt(val, 2);
     } else {
         //separate negative sign, leading zeros, and rest number
         const match = numRegex.exec(trimmedStr);
@@ -45263,11 +45321,13 @@ function trimZeros(numStr) {
 }
 
 function parse_int(numStr, base) {
-    //polyfill
+    const str = numStr.trim();
+    if (base === 2 || base === 8) numStr = str.substring(2);
+
     if (parseInt) return parseInt(numStr, base);
     else if (Number.parseInt) return Number.parseInt(numStr, base);
     else if (window && window.parseInt) return window.parseInt(numStr, base);
-    else throw new Error("parseInt, Number.parseInt, window.parseInt are not supported")
+    else throw new Error("parseInt, Number.parseInt, window.parseInt are not supported");
 }
 
 /**
@@ -46383,7 +46443,7 @@ function extractNamespace(rawTagName) {
 }
 
 class OrderedObjParser {
-  constructor(options) {
+  constructor(options, externalEntities) {
     this.options = options;
     this.currentNode = null;
     this.tagsNodeStack = [];
@@ -46406,7 +46466,7 @@ class OrderedObjParser {
       if (typeof this.options.htmlEntities === "object") namedEntities = this.options.htmlEntities;
       else if (this.options.htmlEntities === true) namedEntities = { ...COMMON_HTML, ...CURRENCY };
       this.entityDecoder = new EntityDecoder({
-        namedEntities: namedEntities,
+        namedEntities: { ...namedEntities, ...externalEntities },
         numericAllowed: this.options.htmlEntities,
         limit: {
           maxTotalExpansions: this.options.processEntities.maxTotalExpansions,
@@ -46583,7 +46643,7 @@ function buildAttributesMap(attrStr, jPath, tagName, force = false) {
 
     if (!hasAttrs) return;
 
-    if (options.attributesGroupName) {
+    if (options.attributesGroupName && !options.preserveOrder) {
       const attrCollection = {};
       attrCollection[options.attributesGroupName] = attrs;
       return attrCollection;
@@ -46964,11 +47024,15 @@ function isItStopNode() {
  * @returns 
  */
 function tagExpWithClosingIndex(xmlData, i, closingChar = ">") {
+  //TODO: ignore boolean attributes in tag expression
+  //TODO: if ignore attributes, dont read full attribute expression but the end. But read for xml declaration
   let attrBoundary = 0;
-  const chars = [];
   const len = xmlData.length;
   const closeCode0 = closingChar.charCodeAt(0);
   const closeCode1 = closingChar.length > 1 ? closingChar.charCodeAt(1) : -1;
+
+  let result = '';
+  let segmentStart = i;
 
   for (let index = i; index < len; index++) {
     const code = xmlData.charCodeAt(index);
@@ -46980,17 +47044,18 @@ function tagExpWithClosingIndex(xmlData, i, closingChar = ">") {
     } else if (code === closeCode0) {
       if (closeCode1 !== -1) {
         if (xmlData.charCodeAt(index + 1) === closeCode1) {
-          return { data: String.fromCharCode(...chars), index };
+          result += xmlData.substring(segmentStart, index);
+          return { data: result, index };
         }
       } else {
-        return { data: String.fromCharCode(...chars), index };
+        result += xmlData.substring(segmentStart, index);
+        return { data: result, index };
       }
-    } else if (code === 9) { // \t
-      chars.push(32); // space
-      continue;
+    } else if (code === 9 && !attrBoundary) { // \t - only replace with space outside attribute values
+      // Flush accumulated segment, add space, start new segment
+      result += xmlData.substring(segmentStart, index) + ' ';
+      segmentStart = index + 1;
     }
-
-    chars.push(code);
   }
 }
 
@@ -47080,7 +47145,7 @@ function readStopNodeData(xmlData, tagName, i) {
         const closeIndex = findClosingIndex(xmlData, "]]>", i, "StopNode is not closed.") - 2;
         i = closeIndex;
       } else {
-        const tagData = readTagExp(xmlData, i, '>');
+        const tagData = readTagExp(xmlData, i, false);
 
         if (tagData) {
           const openTagName = tagData && tagData.tagName;
@@ -47200,6 +47265,10 @@ function compress(arr, options, matcher, readonlyMatcher) {
 
       let val = compress(tagObj[property], options, matcher, readonlyMatcher);
       const isLeaf = isLeafTag(val, options);
+
+      if (Object.keys(val).length === 0 && options.alwaysCreateTextNode) {
+        val[options.textNodeName] = "";
+      }
 
       if (tagObj[":@"]) {
         assignAttributes(val, tagObj[":@"], readonlyMatcher, options);
@@ -47329,8 +47398,8 @@ class XMLParser {
                 throw Error(`${result.err.msg}:${result.err.line}:${result.err.col}`)
             }
         }
-        const orderedObjParser = new OrderedObjParser(this.options);
-        orderedObjParser.entityDecoder.setExternalEntities(this.externalEntities);
+        const orderedObjParser = new OrderedObjParser(this.options, this.externalEntities);
+        // orderedObjParser.entityDecoder.setExternalEntities(this.externalEntities);
         const orderedResult = orderedObjParser.parseXml(xmlData);
         if (this.options.preserveOrder || orderedResult === undefined) return orderedResult;
         else return prettify(orderedResult, this.options, orderedObjParser.matcher, orderedObjParser.readonlyMatcher);
