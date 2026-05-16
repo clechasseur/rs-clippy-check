@@ -41,7 +41,7 @@
     "@tsconfig/node-lts": "^24.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.12.2",
-    "jest": "^30.3.0",
+    "jest": "^30.4.2",
     "oxlint": "^1.63.0",
     "prettier": "^3.8.3",
     "rollup": "^4.60.3",
