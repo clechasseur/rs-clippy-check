@@ -40,7 +40,7 @@
     "@rollup/plugin-typescript": "^12.3.0",
     "@tsconfig/node-lts": "^24.0.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.12.2",
+    "@types/node": "^24.13.2",
     "jest": "^30.4.2",
     "oxlint": "^1.64.0",
     "prettier": "^3.8.4",
