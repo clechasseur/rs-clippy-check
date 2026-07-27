@@ -30,7 +30,7 @@
   "dependencies": {
     "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
-    "@clechasseur/rs-actions-core": "^8.0.2",
+    "@clechasseur/rs-actions-core": "^8.0.3",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
@@ -42,10 +42,13 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.13.2",
     "jest": "^30.4.2",
-    "oxlint": "^1.70.0",
+    "oxlint": "^1.75.0",
     "prettier": "^3.9.6",
     "rollup": "^4.62.2",
-    "ts-jest": "^29.4.11",
+    "ts-jest": "^29.4.12",
     "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "unrs-resolver@1.12.2": true
   }
 }
