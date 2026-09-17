@@ -16,12 +16,6 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
-        with:
-          components: clippy
-          matcher: false
-          rustflags: ""
-          target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu
       - run: npm ci
       - run: npm run lint
       - run: npm run package
