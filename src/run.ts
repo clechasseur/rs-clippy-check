@@ -4,41 +4,35 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import {
   Cargo,
-  CargoHack,
-  CargoHackOptions,
-  Cross,
-  CrossOptions,
+  CargoInstallOptions,
+  CargoLike,
+  CargoOptions,
 } from '@clechasseur/rs-actions-core';
 
 import * as input from './input.js';
 import { CheckRunner } from './check.js';
 
-async function getProgram(actionInput: input.Input) {
-  switch (actionInput.tool) {
-    case 'cross': {
-      const options: CrossOptions = {
-        toolchain: actionInput.toolchain,
-        primaryKey: actionInput.cacheKey,
-      };
-      return await Cross.getOrInstall(options);
-    }
-    case 'cargo-hack': {
-      const options: CargoHackOptions = {
-        toolchain: actionInput.toolchain,
-        primaryKey: actionInput.cacheKey,
-      };
-      return await CargoHack.getOrInstall(options);
-    }
+async function getProgram(
+  actionInput: input.Input,
+): Promise<Cargo | CargoLike> {
+  const options: CargoInstallOptions = {
+    toolchain: actionInput.toolchain,
+    primaryKey: actionInput.cacheKey,
+  };
+
+  if (actionInput.tool) {
+    return await CargoLike.getOrInstall(actionInput.tool, options);
   }
 
-  throw new Error(
-    `Invalid tool '${actionInput.tool}' specified, must be one of [cross, cargo-hack]`,
-  );
+  return await Cargo.get(options);
 }
 
 export async function run(actionInput: input.Input): Promise<void> {
-  const cargo = await Cargo.get(actionInput.toolchain);
-  const program = actionInput.tool ? await getProgram(actionInput) : cargo;
+  const cargoOptions: CargoOptions = {
+    toolchain: actionInput.toolchain,
+  };
+  const cargo = await Cargo.get(cargoOptions);
+  const program = await getProgram(actionInput);
 
   // TODO: Simplify this block
   let rustcVersion = '';

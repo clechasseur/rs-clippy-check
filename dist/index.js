@@ -83129,51 +83129,28 @@ function saveCacheV2(paths_1, key_1, options_1) {
 }
 
 /**
- * Computes the argument to pass to cargo to specify a toolchain.
+ * Wrapper for the `cargo` command.
  *
- * @param toolchain Toolchain to use, or `undefined` to use the default toolchain.
- * @returns Cargo toolchain argument. Either an empty string if the default
- *          toolchain must be used, or a toolchain identifier prepended with `+`.
+ * To obtain the currently installed `cargo`, call {@link Cargo.get}.
  */
-function cargoToolchainArg(toolchain) {
-    if (!toolchain) {
-        return '';
-    }
-    return toolchain.startsWith('+') ? toolchain : `+${toolchain}`;
-}
-/**
- * Resolves the latest version of a Cargo crate by contacting crates.io.
- *
- * @param crate Crate name.
- * @returns Latest crate version.
- */
-async function resolveVersion(crate) {
-    const url = `https://crates.io/api/v1/crates/${crate}`;
-    const client = new HttpClient('@clechasseur/rs-actions-core (https://github.com/clechasseur/rs-actions-core)');
-    const resp = await client.getJson(url); // eslint-disable-line @typescript-eslint/no-explicit-any
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (!resp.result) {
-        throw new Error('Unable to fetch latest crate version');
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-    return resp.result.crate.newest_version;
-}
 class Cargo {
     path;
-    toolchain;
-    constructor(path, toolchain) {
+    options;
+    cargoEnv;
+    constructor(path, options) {
         this.path = path;
-        this.toolchain = cargoToolchainArg(toolchain);
+        this.options = options;
+        this.cargoEnv = getCargoEnv(options);
     }
     /**
-     * Fetches the currently-installed version of cargo.
+     * Fetches the currently-installed version of `cargo`.
      *
-     * @param toolchain Optional toolchain to use when executing cargo commands.
+     * @param options Options to use when calling `cargo`.
      */
-    static async get(toolchain) {
+    static async get(options) {
         try {
             const path = await which('cargo', true);
-            return new Cargo(path, toolchain);
+            return new Cargo(path, options);
         }
         catch (error$1) {
             error('cargo is not installed by default for some virtual environments, \
@@ -83187,37 +83164,51 @@ see https://help.github.com/en/articles/software-in-virtual-environments-for-git
      * executes `cargo install ${program}` and caches the result.
      *
      * @param program Program to install.
-     * @param version Program version to install. If `undefined` or set to `'latest'`,
-     *                the latest version will be installed.
-     * @param primaryKey Primary cache key to use when caching program. If not
-     *                   specified, a default cache key will be used. If set to
-     *                   `no-cache`, caching is disabled.
-     * @param restoreKeys Optional additional cache keys to use when looking for
-     *                    a cached version of the program.
+     * @param options Optional installation options.
      * @returns Path to installed program. Since program will be installed in
      *          the cargo bin directory which is on the `PATH`, this will be
-     *          equal to `program` currently.
+     *          equal to `program` currently (unless Cargo's
+     *          {@link CargoOptions.home home} is customized).
      */
-    async install(program, version, primaryKey, restoreKeys) {
-        if (!version || version === 'latest') {
-            version = (await resolveVersion(program)) ?? '';
+    async install(program, options) {
+        const installOptions = {
+            ...options,
+            primaryKey: options?.primaryKey ?? 'rs-actions-core',
+        };
+        if (!installOptions.version || installOptions.version === 'latest') {
+            installOptions.version = (await resolveVersion(program)) ?? '';
         }
-        primaryKey ??= 'rs-actions-core';
-        const paths = [path.join(path.dirname(this.path), program)];
-        const programKey = `${program}-${version}-${primaryKey}`;
-        const programRestoreKeys = (restoreKeys ?? []).map((key) => `${program}-${version}-${key}`);
-        if (primaryKey !== 'no-cache') {
-            const cacheKey = await restoreCache(paths, programKey, programRestoreKeys);
+        const paths = [
+            path.join(...(this.options?.home
+                ? [this.options.home, 'bin']
+                : [path.dirname(this.path)]), program),
+        ];
+        const programKey = `${program}-${installOptions.version}-${installOptions.primaryKey}`;
+        const programRestoreKeys = (installOptions.restoreKeys ?? []).map((key) => `${program}-${installOptions.version}-${key}`);
+        if (installOptions.primaryKey !== 'no-cache') {
+            let cacheKey;
+            try {
+                startGroup(`Looking for "${program}" in cache`);
+                cacheKey = await restoreCache(paths, programKey, programRestoreKeys);
+            }
+            finally {
+                endGroup();
+            }
             if (cacheKey) {
-                info(`Using cached \`${program}\` with version \`${version}\``);
+                info(`Using cached "${program}" with version "${installOptions.version}"`);
                 return program;
             }
         }
-        const installPath = await this.cargoInstall(program, version);
-        if (primaryKey !== 'no-cache') {
+        const installPath = await this.cargoInstall(program, installOptions.version, installOptions.locked ?? true);
+        if (installOptions.primaryKey !== 'no-cache') {
             try {
-                info(`Caching \`${program}\` with key \`${programKey}\``);
-                await saveCache(paths, programKey);
+                try {
+                    startGroup(`Caching "${program}" with key "${programKey}"`);
+                    await saveCache(paths, programKey);
+                }
+                finally {
+                    endGroup();
+                }
             }
             catch (error) {
                 if (error.name === ValidationError.name) {
@@ -83227,30 +83218,38 @@ see https://help.github.com/en/articles/software-in-virtual-environments-for-git
                     info(error.message);
                 }
                 else {
-                    info(`[warning] ${error.message}`);
+                    warning(error.message);
                 }
             }
         }
         return installPath;
     }
     /**
-     * Runs a cargo command.
+     * Runs a `cargo` command.
      *
-     * @param args Arguments to pass to cargo.
+     * @param args Arguments to pass to `cargo`.
      * @param options Optional exec options.
      * @returns Cargo exit code.
      */
     async call(args, options) {
-        return await exec(this.path, this.callArgs(args), options);
+        const callArgs = cargoCallArgs(args, this.options);
+        const execOptions = {
+            ...options,
+            env: {
+                ...this.cargoEnv,
+                ...options?.env,
+            },
+        };
+        return await exec(this.path, callArgs, execOptions);
     }
-    callArgs(args) {
-        return this.toolchain ? [this.toolchain, ...args] : args;
-    }
-    async cargoInstall(program, version) {
+    async cargoInstall(program, version, locked) {
         const args = ['install'];
         if (version !== 'latest') {
             args.push('--version');
             args.push(version);
+        }
+        if (locked) {
+            args.push('--locked');
         }
         args.push(program);
         try {
@@ -83260,139 +83259,152 @@ see https://help.github.com/en/articles/software-in-virtual-environments-for-git
         finally {
             endGroup();
         }
+        if (this.options?.home) {
+            return path.join(this.options.home, 'bin', program);
+        }
         return program;
     }
 }
-
-class Cross {
-    path;
-    toolchain;
-    constructor(path, toolchain) {
-        this.path = path;
-        this.toolchain = cargoToolchainArg(toolchain);
+/**
+ * Computes the arguments to pass when calling `cargo` for the given options.
+ * Takes care of checking if options override the toolchain, etc.
+ *
+ * @param args Arguments to pass to `cargo`.
+ * @param options Options to use when calling `cargo`.
+ * @returns Actual list of parameters to pass to `cargo`, including extra
+ *          parameters like the toolchain, etc.
+ */
+function cargoCallArgs(args, options) {
+    const toolchainArg = options?.toolchain
+        ? [`${options.toolchain.startsWith('+') ? '' : '+'}${options.toolchain}`]
+        : [];
+    return [...toolchainArg, ...args];
+}
+/**
+ * Resolves the latest version of a Cargo crate by contacting crates.io.
+ *
+ * @param crate Crate name.
+ * @returns Latest crate version.
+ */
+async function resolveVersion(crate) {
+    const url = `https://crates.io/api/v1/crates/${crate}`;
+    const client = new HttpClient('@clechasseur/rs-actions-core (https://github.com/clechasseur/rs-actions-core)');
+    const resp = await client.getJson(url);
+    if (!resp.result) {
+        throw new Error(`Unable to fetch latest crate version for "${crate}"`);
     }
-    /**
-     * Gets the installed version of `cross`, or installs it if not yet installed.
-     *
-     * @param options Options for getting or installing `cross`. See {@link CrossOptions}.
-     */
-    static async getOrInstall(options) {
-        try {
-            return await Cross.get(options?.toolchain);
-        }
-        catch (error) {
-            debug(error.message);
-            return await Cross.install(options);
-        }
-    }
-    /**
-     * Gets the installed version of `cross`.
-     * Throws an exception if not installed.
-     *
-     * @param toolchain Optional toolchain to use when invoking `cross`.
-     */
-    static async get(toolchain) {
-        const path = await which('cross', true);
-        return new Cross(path, toolchain);
-    }
-    /**
-     * Install `cross` and caches it for future use.
-     *
-     * @param options Options for getting or installing `cross`. See {@link CrossOptions}.
-     */
-    static async install(options) {
-        const cargo = await Cargo.get();
-        // Compiling cross might require a version of Rust that the
-        // one currently installed and configured, so move to the
-        // temp directory (to get the system version of Rust).
-        const cwd = process.cwd();
-        process.chdir(os.tmpdir());
-        try {
-            const crossPath = await cargo.install('cross', options?.version, options?.primaryKey, options?.restoreKeys);
-            return new Cross(crossPath, options?.toolchain);
-        }
-        finally {
-            // It is important to chdir back!
-            process.chdir(cwd);
-            endGroup();
+    return resp.result.crate.newest_version;
+}
+/**
+ * Returns a dictionary of environment variables that can be passed to `cargo`
+ * via {@link exec.ExecOptions.env}. The environment variables will be a copy
+ * of this process' environment, adjusted according to the given options.
+ *
+ * @param options Options to use to modify the `cargo` environment.
+ * @returns Dictionary of `cargo` environment variables.
+ */
+function getCargoEnv(options) {
+    const cargoEnv = {};
+    for (const [key, value] of Object.entries(process.env)) {
+        if (value !== undefined) {
+            cargoEnv[key] = value;
         }
     }
-    /**
-     * Runs a cross command.
-     */
-    async call(args, options) {
-        return await exec(this.path, this.callArgs(args), options);
+    if (options?.home !== undefined) {
+        cargoEnv['CARGO_HOME'] = options.home;
     }
-    callArgs(args) {
-        return this.toolchain ? [this.toolchain, ...args] : args;
-    }
+    return cargoEnv;
 }
 
-class CargoHack {
-    toolchain;
-    constructor(toolchain) {
-        this.toolchain = cargoToolchainArg(toolchain);
+/**
+ * Wrapper for a `cargo`-like tool binary that is callable like `cargo`.
+ *
+ * Supports standalone tools like [`cross`](https://github.com/cross-rs/cross)
+ * as well as cargo subcommands like [`cargo-hack`](https://github.com/taiki-e/cargo-hack).
+ */
+class CargoLike {
+    name;
+    path;
+    options;
+    cargoEnv;
+    constructor(name, path, options) {
+        this.name = name;
+        this.path = path;
+        this.options = options;
+        this.cargoEnv = getCargoEnv(options);
     }
     /**
-     * Gets the installed version of `cargo-hack`, or installs it if not yet installed.
+     * Gets the installed version of a Cargo-like tool, or installs it using
+     * `cargo install` if not yet installed.
      *
-     * @param options Options for getting or installing `cargo-hack`. See
-     *                {@link CargoHackOptions}.
+     * @param name Name of the Cargo-like tool (the executable name). If tool is
+     *             a cargo subcommand, name must include the `cargo-` prefix.
+     * @param options Options for calling the tool, or for installing it if
+     *                necessary. See {@link CargoInstallOptions}.
      */
-    static async getOrInstall(options) {
+    static async getOrInstall(name, options) {
         try {
-            return await CargoHack.get(options?.toolchain);
+            return await CargoLike.get(name, options);
         }
         catch (error) {
             debug(error.message);
-            return await CargoHack.install(options);
+            return await CargoLike.install(name, options);
         }
     }
     /**
-     * Gets the installed version of `cargo-hack`.
+     * Gets the installed version of a Cargo-like tool.
      * Throws an exception if not installed.
      *
-     * @param toolchain Optional toolchain to use when invoking `cargo-hack`.
+     * @param name Name of the Cargo-like tool (the executable name). If tool is
+     *             a cargo subcommand, name must include the `cargo-` prefix.
+     * @param options Options used when calling the tool. See {@link CargoOptions}.
      */
-    static async get(toolchain) {
-        // io.which will throw an exception if not installed, but we don't need the path proper.
-        await which('cargo-hack', true);
-        return new CargoHack(toolchain);
+    static async get(name, options) {
+        const whichPath = options?.home
+            ? path__default.join(options.home, 'bin', name)
+            : name;
+        const toolPath = await which(whichPath, true);
+        return new CargoLike(name, toolPath, options);
     }
     /**
-     * Install `cargo-hack` and caches it for future use.
+     * Installs a Cargo-like tool using `cargo install` and caches it for future use.
      *
-     * @param options Options to use to install `cargo-hack`. See
-     *                {@link CargoHackOptions}
+     * @param name Name of the Cargo-like tool (the executable name). If tool is
+     *             a cargo subcommand, name must include the `cargo-` prefix.
+     * @param options Options for calling and installing the tool. See
+     *                {@link CargoInstallOptions}.
+     * @param cargoOptions Options used to fetch the {@link Cargo} wrapper
+     *                     (see {@link Cargo.get}). If not specified, `options`
+     *                     will be used for this as well.
      */
-    static async install(options) {
-        const cargo = await Cargo.get();
-        // Compiling cargo-hack might require a version of Rust that the
-        // one currently installed and configured, so move to the
-        // temp directory (to get the system version of Rust).
-        const cwd = process.cwd();
-        process.chdir(os.tmpdir());
-        try {
-            await cargo.install('cargo-hack', options?.version, options?.primaryKey, options?.restoreKeys);
-            return new CargoHack(options?.toolchain);
-        }
-        finally {
-            // It is important to chdir back!
-            process.chdir(cwd);
-            endGroup();
-        }
+    static async install(name, options, cargoOptions) {
+        const cargo = await Cargo.get(cargoOptions ?? options);
+        const toolPath = await cargo.install(name, options);
+        return new CargoLike(name, toolPath, options);
     }
     /**
-     * Runs `cargo hack ${args}`.
+     * Runs this Cargo-like tool with the provided arguments.
      *
-     * @param args Arguments to pass to `cargo-hack` (after `cargo hack ...`).
+     * @param args Arguments to pass to the tool.
      * @param options Optional exec options.
-     * @returns `cargo-hack` exit code.
+     * @returns Tool exit code.
      */
     async call(args, options) {
-        // cargo-hack is a cargo subcommand so we must actually call it through cargo.
-        const cargo = await Cargo.get(this.toolchain);
-        return await cargo.call(['hack', ...args], options);
+        if (this.name.startsWith('cargo-')) {
+            // This is a cargo subcommand so we must actually call it through cargo.
+            const subcommand = this.name.substring('cargo-'.length);
+            const cargo = await Cargo.get(this.options);
+            return await cargo.call([subcommand, ...args], options);
+        }
+        const callArgs = cargoCallArgs(args, this.options);
+        const execOptions = {
+            ...options,
+            env: {
+                ...this.cargoEnv,
+                ...options?.env,
+            },
+        };
+        return await exec(this.path, callArgs, execOptions);
     }
 }
 
@@ -88952,27 +88964,21 @@ ${this._stats.help} help`);
 }
 
 async function getProgram(actionInput) {
-    switch (actionInput.tool) {
-        case 'cross': {
-            const options = {
-                toolchain: actionInput.toolchain,
-                primaryKey: actionInput.cacheKey,
-            };
-            return await Cross.getOrInstall(options);
-        }
-        case 'cargo-hack': {
-            const options = {
-                toolchain: actionInput.toolchain,
-                primaryKey: actionInput.cacheKey,
-            };
-            return await CargoHack.getOrInstall(options);
-        }
+    const options = {
+        toolchain: actionInput.toolchain,
+        primaryKey: actionInput.cacheKey,
+    };
+    if (actionInput.tool) {
+        return await CargoLike.getOrInstall(actionInput.tool, options);
     }
-    throw new Error(`Invalid tool '${actionInput.tool}' specified, must be one of [cross, cargo-hack]`);
+    return await Cargo.get(options);
 }
 async function run(actionInput) {
-    const cargo = await Cargo.get(actionInput.toolchain);
-    const program = actionInput.tool ? await getProgram(actionInput) : cargo;
+    const cargoOptions = {
+        toolchain: actionInput.toolchain,
+    };
+    const cargo = await Cargo.get(cargoOptions);
+    const program = await getProgram(actionInput);
     // TODO: Simplify this block
     let rustcVersion = '';
     let cargoVersion = '';
