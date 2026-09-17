@@ -49,6 +49,7 @@
     "typescript": "^6.0.3"
   },
   "allowScripts": {
-    "unrs-resolver@1.12.2": true
+    "unrs-resolver@1.12.2": true,
+    "@parcel/watcher": false
   }
 }
