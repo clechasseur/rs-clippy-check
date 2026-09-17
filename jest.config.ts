@@ -6,9 +6,12 @@
 import type { Config } from 'jest';
 import { createDefaultEsmPreset } from 'ts-jest';
 
-const defaultEsmPreset = createDefaultEsmPreset();
 const config: Config = {
-  ...defaultEsmPreset,
+  ...createDefaultEsmPreset({
+    diagnostics: {
+      ignoreCodes: [151002],
+    },
+  }),
 
   // All imported modules in your tests should be mocked automatically
   // automock: false,

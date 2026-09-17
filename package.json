@@ -11,7 +11,7 @@
     "format": "prettier --write 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint": "oxlint",
     "package": "rm -rf ./dist/* && npm run build",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "repository": {
     "type": "git",
