@@ -1,6 +1,6 @@
 {
   "name": "rs-clippy-check",
-  "version": "6.0.7",
+  "version": "6.1.0",
   "type": "module",
   "private": true,
   "description": "Run clippy and annotate the diff with errors and warnings",
@@ -11,7 +11,7 @@
     "format": "prettier --write 'src/**/*.ts' '__tests__/**/*.ts'",
     "lint": "oxlint",
     "package": "rm -rf ./dist/* && npm run build",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
   "dependencies": {
     "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
-    "@clechasseur/rs-actions-core": "^8.0.4",
+    "@clechasseur/rs-actions-core": "^10.0.0",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
@@ -49,6 +49,7 @@
     "typescript": "^6.0.3"
   },
   "allowScripts": {
-    "unrs-resolver@1.12.2": true
+    "unrs-resolver@1.12.2": true,
+    "@parcel/watcher": false
   }
 }

@@ -12,7 +12,7 @@ inputs:
     description: Directory where to perform cargo clippy command
     required: false
   tool:
-    description: Tool to use instead of cargo ([`cross`, `cargo-hack`])
+    description: Tool to use instead of cargo (like `cross` or `cargo-hack`)
     required: false
   cache-key:
     description: Cache key used when using a non-cargo tool
