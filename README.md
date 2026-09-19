@@ -26,12 +26,12 @@ jobs:
   clippy_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: actions-rust-lang/setup-rust-toolchain@a0b538fa0b742a6aa35d6e2c169b4bd06d225a98 # v1.15.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
         with:
           toolchain: nightly
           components: clippy
-      - uses: clechasseur/rs-clippy-check@v6.0.5
+      - uses: clechasseur/rs-clippy-check@v6.1.0
         with:
           args: --all-features
 ```
@@ -40,13 +40,13 @@ jobs:
 
 All inputs are optional.
 
-| Name                | Required | Description                                                                                                                            | Type   | Default         |
-| --------------------| :------: |----------------------------------------------------------------------------------------------------------------------------------------| ------ |-----------------|
-| `toolchain`         |          | Rust toolchain name to use                                                                                                             | string |                 |
-| `args`              |          | Arguments for the `cargo clippy` command                                                                                               | string |                 |
-| `working-directory` |          | Directory where to perform the `cargo clippy` command                                                                                  | string |                 |
-| `tool`              |          | Tool to use instead of `cargo` ([`cross`](https://github.com/cross-rs/cross) or [`cargo-hack`](https://github.com/taiki-e/cargo-hack)) | string |                 |
-| `cache-key`         |          | Cache key when using a non-`cargo` `tool`                                                                                              | string | rs-clippy-check |
+| Name                | Required | Description                                                                                                                              | Type   | Default         |
+| --------------------| :------: |------------------------------------------------------------------------------------------------------------------------------------------| ------ |-----------------|
+| `toolchain`         |          | Rust toolchain name to use                                                                                                               | string |                 |
+| `args`              |          | Arguments for the `cargo clippy` command                                                                                                 | string |                 |
+| `working-directory` |          | Directory where to perform the `cargo clippy` command                                                                                    | string |                 |
+| `tool`              |          | Tool to use instead of `cargo` (ex: [`cross`](https://github.com/cross-rs/cross), [`cargo-hack`](https://github.com/taiki-e/cargo-hack)) | string |                 |
+| `cache-key`         |          | Cache key when using a non-`cargo` `tool`                                                                                                | string | rs-clippy-check |
 
 For extra details about the `toolchain`, `args`, `tool` and `cache-key` inputs, see [`rs-cargo` Action](https://github.com/clechasseur/rs-cargo#inputs).
 
