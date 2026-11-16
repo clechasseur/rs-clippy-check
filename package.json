@@ -47,7 +47,7 @@
     "prettier": "^3.10.1",
     "rollup": "^4.68.3",
     "ts-jest": "^29.4.15",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.0"
   },
   "allowScripts": {
     "@parcel/watcher@2.6.0": true
