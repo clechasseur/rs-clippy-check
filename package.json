@@ -1,6 +1,6 @@
 {
   "name": "rs-clippy-check",
-  "version": "6.1.1",
+  "version": "6.1.2",
   "type": "module",
   "private": true,
   "description": "Run clippy and annotate the diff with errors and warnings",
@@ -28,28 +28,28 @@
     "url": "https://github.com/clechasseur/rs-clippy-check/issues"
   },
   "dependencies": {
+    "@actions/cache": "^6.2.0",
     "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
-    "@clechasseur/rs-actions-core": "^10.0.1",
+    "@clechasseur/rs-actions-core": "^10.0.3",
     "string-argv": "^0.4.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
-    "@rollup/plugin-typescript": "^12.3.0",
-    "@tsconfig/node-lts": "^24.0.0",
+    "@rollup/plugin-typescript": "^12.3.1",
+    "@tsconfig/node-lts": "^24.0.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.13.3",
-    "jest": "^30.4.2",
-    "oxlint": "^1.78.0",
-    "prettier": "^3.9.6",
-    "rollup": "^4.62.4",
-    "ts-jest": "^29.4.12",
+    "@types/node": "^24.19.2",
+    "jest": "^30.5.2",
+    "oxlint": "^1.93.0",
+    "prettier": "^3.10.1",
+    "rollup": "^4.68.3",
+    "ts-jest": "^29.4.15",
     "typescript": "^6.0.3"
   },
   "allowScripts": {
-    "unrs-resolver@1.12.2": true,
-    "@parcel/watcher": false
+    "@parcel/watcher@2.6.0": true
   }
 }
